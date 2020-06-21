@@ -1,0 +1,2 @@
+Compile with /a.out for procedual programming files
+makefiles are already created for each of the projects

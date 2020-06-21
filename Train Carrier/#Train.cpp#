@@ -1,0 +1,313 @@
+/*  Name :    Train.cpp
+    Project: CMSC 202 Project 3, Spring 2018
+    Project Design: Jason Zeng
+    Desc: This file contains the classdef for the Train class. The Train
+          is the linked list in this project. The Car class is the individual nodes.
+*/
+
+#include "Train.h" 
+
+//Constants
+const string THE_BIO = "BIO";
+const string THE_POI = "POI";
+const string THE_COM = "COM";
+const string THE_OXI = "OXI";
+const string THE_RAD = "RAD";
+const string THE_LOC = "ENGINE";
+const string THE_CAB = "CABOOSE";
+const string THE_VALID = " (valid)";
+const string THE_INVALID = " (invalid)";
+const string THE_EMPTY = "EMPTY";
+const string THE_ARROW = "->";
+const string THE_TRAIN = "Train ";
+const string THE_SEMI = ": ";
+const int THE_ZERO = 0;
+const int THE_ONE = 1; 
+const int THE_TWO = 2;
+const int THE_THREE = 3;
+const int THE_FOUR = 4;
+const int THE_FIVE = 5;
+const int THE_SIX = 6;
+
+// Name: Train (Default Constructor)
+// PreCondition:  none
+// PostCondition: instantiates a default-constructed Train object
+
+Train::Train(){
+  m_head = NULL;
+  m_len = 0;
+}
+
+// Name: Train (Overloaded Constructor)
+// PreCondition:  none
+// PostCondition: instantiates a Train object with a given number
+
+Train::Train(int trainNumber){
+  m_head = NULL;
+  m_number = trainNumber;
+}
+
+// Name: ~Train
+// PreCondition:  none
+// PostCondition: destroys train object
+
+Train::~Train(){
+  
+  Car *current = m_head;
+  Car *next = current->getNext();
+  
+  while(current != NULL){
+    current->setNext(NULL);
+    delete current;
+    current = next;
+    next = current->getNext();
+  }
+  
+  delete m_head;
+  next = NULL;
+  m_head = NULL;
+  m_len = 0;
+}
+  
+
+
+
+// Name: display
+// PreCondition:  given ostream& is valid
+// PostCondition: appends own train information to a given ostream&
+
+void Train::display(ostream &theOutput) const{
+  Car *temp = m_head;
+
+  cout << THE_TRAIN << getNumber() << THE_SEMI; 
+  
+  while (temp != NULL){
+    
+    //if the cargo equals to the number that it is assigned in enumeration
+    //cout the BIO-> it goes the same for the rest.
+    if(temp->getCargo() == THE_ZERO){
+      theOutput << THE_BIO << THE_ARROW;
+    }    
+    if(temp->getCargo() == THE_ONE){
+      theOutput << THE_POI << THE_ARROW;
+    }
+    if(temp->getCargo() == THE_TWO){
+      theOutput << THE_COM << THE_ARROW;
+    }
+    if(temp->getCargo() == THE_THREE){
+      theOutput << THE_OXI << THE_ARROW;
+    }
+    if(temp->getCargo() == THE_FOUR){
+      theOutput << THE_RAD << THE_ARROW;
+    }
+    if(temp->getCargo() == THE_FIVE){
+      theOutput << THE_LOC << THE_ARROW;
+    }
+    if(temp->getCargo() == THE_SIX){
+      theOutput << THE_CAB;
+    }
+
+    temp = temp->getNext();
+  }
+
+  //if isValid is true then it prints valid if not then the opposite
+  if(isValid() == true){
+    cout << THE_VALID;
+  
+  }else{
+    cout << THE_INVALID;
+  }
+}
+
+// Name: isValid
+// PreCondition:  none
+// PostCondition: returns a boolean indicating whether the current
+//                arrangement of the train is valid
+
+bool Train::isValid() const{
+
+  Car *cur = m_head;
+  Car *temp = m_head;
+ 
+  if(m_head == NULL){
+    cout << "EMPTY" << endl;
+  }else{
+   
+    //iterating through the whole linked list 
+    for(cur = m_head; cur != NULL; cur = cur->getNext()){
+      temp = cur->getNext();
+
+      //if the data in the linked list equals to oxidizer and the next 
+      //data which is the combustible it will return false because it 
+      //not meet the conditions.
+      if(cur->getCargo() == OXIDIZER && temp->getCargo() == COMBUSTIBLE){
+	return false;
+      }
+      
+      if(cur->getCargo() == COMBUSTIBLE && temp->getCargo() == OXIDIZER){
+	return false;
+      }
+
+    
+      //Checks Combustible car 3 in a row if it is then it return false.
+      if(cur->getCargo() == COMBUSTIBLE && temp->getCargo() == COMBUSTIBLE){
+	cur = cur->getNext();
+	temp = temp->getNext();
+	if(temp->getCargo() == COMBUSTIBLE){
+	  return false;
+	}
+      }
+
+      //Checks Biologial car 5 in a row if it is then it return false
+      if(cur->getCargo() == BIOLOGICAL && temp->getCargo() == BIOLOGICAL){
+	cur = cur->getNext();
+	temp = temp->getNext();
+	if(cur->getCargo() == BIOLOGICAL && temp->getCargo() == BIOLOGICAL){
+	  cur = cur->getNext();
+	  temp = temp->getNext();
+	  if(temp->getCargo() == BIOLOGICAL){
+	    return false;
+	  }
+	}
+      }
+      
+      //Checks Biological car having only one side equal to Radioactive so if
+      //there are more Rad->Bio->Rad it will be invalid
+      if(cur->getCargo() == RADIOACTIVE && temp->getCargo() == BIOLOGICAL){
+	cur = cur->getNext();
+	temp = temp->getNext();
+	if(temp->getCargo() == RADIOACTIVE){
+	  return false;
+	}
+      }
+    }
+  }
+  return true;
+}
+  
+// Name: addCar
+// PreCondition:  given CARGO_TYPE is valid, given integer is a valid
+//                index (where to insert in train)
+// PostCondition: adds car to the train, at given index. zero-indexed
+
+int Train::addCar(const CARGO_TYPE &theType, int theIndex){
+
+  //This creates a new node and insert data to the given node 
+  Car *temp = new Car();
+  temp->setCargo(theType);
+  temp->setNext(NULL);
+    
+  if(m_head == NULL){
+    
+    m_head = temp;
+    
+  }else{
+    Car *temp2 = m_head;
+
+    while(temp2->getNext() != NULL){
+      temp2 = temp2->getNext();
+    }
+
+    temp2->setNext(temp);
+    }
+  
+  return theIndex;
+}
+
+// Name: removeCar
+// PreCondition:  given integer is a valid index
+// PostCondition: removes Car from train at given index. zero-indexed
+
+int Train::removeCar(int validIndex){
+
+  //this remove a car at a given index
+  Car *temp = m_head;
+  Car *temp2 = m_head;
+
+  if(validIndex == 1){
+    m_head = temp2->getNext();
+
+    delete temp2;
+    return validIndex;
+  }
+
+  for(int i = 0; i < validIndex - THE_TWO; i++){
+    temp2 = temp->getNext();
+  }
+  
+  Car *temp3 = temp2->getNext();
+  temp2->setNext(temp3->getNext());
+  
+  delete temp3;
+  return validIndex;
+}
+
+// Name: removeCar
+// PreCondition:  given CARGO_TYPE is valid
+// PostCondition: removes every car of given cargo_type from train.
+
+int Train::removeCar(CARGO_TYPE theType){
+  
+  //this remove the cargo type of the car
+  Car *temp = m_head;
+  Car *prev = m_head;
+
+  while(temp != NULL && temp->getCargo() == theType){
+    Car *next = temp->getNext();
+    delete temp;
+    temp = next;
+  }
+  
+  while(temp != NULL){
+    while(temp != NULL && temp->getCargo() != theType){
+      prev = temp;
+      temp = temp->getNext();
+    }
+    
+    if(temp == NULL){
+      return theType;
+    }
+    
+    prev->setNext(temp->getNext());
+    delete temp;
+
+    temp = prev->getNext();
+  }
+
+  return theType;
+}
+
+// Name: getLength
+// PreCondition:  none
+// PostCondition: returns current length of the train
+
+int Train::getLength() const{
+  return m_len;
+}
+
+// Name: getNumber
+// PreCondition:  none
+// PostCondition: returns current number of the train (The number is the nameof the train)
+
+int Train::getNumber() const{
+  return m_number;
+}
+
+// Name: setNumber
+// PreCondition:  none
+// PostCondition: sets a new number for the train
+
+void Train::setNumber(int newNumber){
+  m_number = newNumber;
+}
+
+// Name: operator<<
+// PreCondition:  given arguments are valid
+// PostCondition: appends train information to ostream&
+// This function just calls the display function and allows us to cout << myTrain
+
+std::ostream &operator<<(std::ostream &theOutput, const Train &linkedList){
+  linkedList.display(theOutput);
+  return theOutput;
+}
+  
